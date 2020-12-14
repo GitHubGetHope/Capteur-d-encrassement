@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">	
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script>
+window.onload = function () {
+
+var dataPoints1 = [];
+var dataPoints2 = [];
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	zoomEnabled: true,
+	title: {
+		text: "VEOLIA PROJECT"
+	},
+	axisX: {
+		title: " Courbe des données mesurées par le capteur HC-SR04"
+	},
+	axisY:{
+		title: "Le niveau de l'eau en cm",
+		includeZero: false
+	}, 
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor:"pointer",
+		verticalAlign: "top",
+		fontSize: 22,
+		fontColor: "dimGrey",
+
+	},
+	data: [{ 
+		type: "line",
+		showInLegend: true,
+		name: "Données mesurées",
+		dataPoints: dataPoints1
+		},
+		{				
+			type: "line",
+			showInLegend: true,
+			name: "Données réelles" ,
+			dataPoints: dataPoints2
+	}]
+});
+
+var time1 = new Date;
+var niveau_eau = 35.8;
+var valeur_relle_niveau = 0;
+
+$.getJSON("http://user.ackl.io:8080/Distance?device=caninos", function(data) { 
+	//console.log(data); 
+	$.each(data, function(key, value){
+		//console.log(key); && key!=189 && key!=26 && key != 186
+
+		if (key>629 )
+		{
+			if (key < 656){valeur_relle_niveau = 31.6;}
+			if (key>656 && key < 782){valeur_relle_niveau = 27.2;}
+			if (key>782 && key < 936){valeur_relle_niveau = 24.7;}
+		dataPoints1.push({x:key, y: niveau_eau- value.Distance});
+		dataPoints2.push({x: key, y: niveau_eau - valeur_relle_niveau});
+
+	}
+	});	
+	console.log(dataPoints1); 
+	chart.render();
+});
+
+}
+
+
+</script>
+</head>
+<body>
+<div id="chartContainer" style=" height: 100%; width: 90% auto;"></div>
+</body>
+</html>
